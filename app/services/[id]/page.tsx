@@ -1,6 +1,8 @@
+// app/services/[id]/page.tsx
+
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, XCircle, FileText, Sparkles, Clock, Image, Instagram } from 'lucide-react';
 import { useServiceData } from './hooks/useServiceData';
@@ -12,13 +14,14 @@ import EditImagesForm from './components/forms/EditImagesForm';
 import EditInstagramForm from './components/forms/EditInstagramForm';
 
 interface EditServicePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 type TabType = 'name' | 'description' | 'benefits' | 'time' | 'images' | 'instagram';
 
 export default function EditServicePage({ params }: EditServicePageProps) {
-  const { serviceData, setServiceData, isLoading, error } = useServiceData(params.id);
+  const [id, setId] = useState<string>('');
+  const { serviceData, setServiceData, isLoading, error } = useServiceData(id);
   const [activeTab, setActiveTab] = useState<TabType>('name');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -27,6 +30,15 @@ export default function EditServicePage({ params }: EditServicePageProps) {
   const [editDescription, setEditDescription] = useState('');
   const [editBenefits, setEditBenefits] = useState<string[]>([]);
   const [editProcedureTime, setEditProcedureTime] = useState('');
+
+  // Extrair o id dos params de forma assíncrona
+  useEffect(() => {
+    const getId = async () => {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    };
+    getId();
+  }, [params]);
 
   // Atualizar estados quando dados carregarem
   React.useEffect(() => {
@@ -45,7 +57,7 @@ export default function EditServicePage({ params }: EditServicePageProps) {
     try {
       setIsSaving(true);
 
-      const updates: any = {};
+      const updates: Record<string, unknown> = {};
       
       if (editName !== serviceData.name) {
         updates.service_name = editName;
@@ -132,6 +144,20 @@ export default function EditServicePage({ params }: EditServicePageProps) {
     { id: 'images', label: 'Imagens', icon: Image },
     { id: 'instagram', label: 'Instagram', icon: Instagram },
   ];
+
+  // Se ainda não temos o ID, mostrar loading
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-blue-50">
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="text-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-800 font-medium">Carregando...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Loading
   if (isLoading) {

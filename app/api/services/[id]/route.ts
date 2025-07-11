@@ -2,12 +2,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+// ✅ TIPAGEM CORRETA PARA NEXT.JS 15
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
-    const serviceId = params.id;
+    // ✅ AWAIT nos params para Next.js 15
+    const { id: serviceId } = await context.params;
     
     console.log('=== DEBUG BUSCAR SERVIÇO ===');
     console.log('ID do serviço:', serviceId);
@@ -88,13 +94,14 @@ export async function GET(
   }
 }
 
-// 🗑️ MÉTODO DELETE ADICIONADO
+// ✅ MÉTODO DELETE COM TIPAGEM CORRETA
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
-    const serviceId = params.id;
+    // ✅ AWAIT nos params para Next.js 15
+    const { id: serviceId } = await context.params;
     
     console.log('=== DEBUG DELETAR SERVIÇO ===');
     console.log('ID do serviço:', serviceId);
