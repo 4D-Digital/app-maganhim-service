@@ -1,103 +1,227 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState } from 'react';
+import Step1ServiceName from '@/components/Step1ServiceName';
+import Step2ValidateDescription from '@/components/Step2ValidateDescription';
+import Step3ValidateBenefits from '@/components/Step3ValidateBenefits';
+import Step4ProcedureTime from '@/components/Step4ProcedureTime';
+import Step5UploadImages from '@/components/Step5UploadImages';
+import Step6InstagramLinks from '@/components/Step6InstagramLinks';
+import Step7Finalize from '@/components/Step7Finalize';
+
+interface ServiceData {
+  id: string;
+  name: string;
+  description: string;
+  benefits: string[];
+  procedureTime: string;
+  imageUrls: string[];
+  instagramLinks: string[];
+}
+
+export default function ClinicServiceForm() {
+  // Estado principal do formulário
+  const [currentStep, setCurrentStep] = useState(1);
+  const [serviceData, setServiceData] = useState<ServiceData>({
+    id: '',
+    name: '',
+    description: '',
+    benefits: [],
+    procedureTime: '',
+    imageUrls: [],
+    instagramLinks: []
+  });
+
+  // Estados de loading/progresso
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Função para atualizar dados do serviço
+  const updateServiceData = (updates: Partial<ServiceData>) => {
+    setServiceData(prev => ({ ...prev, ...updates }));
+  };
+
+  // Função para avançar etapa
+  const nextStep = () => {
+    setCurrentStep(prev => prev + 1);
+  };
+
+  // Função para voltar etapa (se necessário)
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
+  // Função para resetar formulário
+  const resetForm = () => {
+    setCurrentStep(1);
+    setServiceData({
+      id: '',
+      name: '',
+      description: '',
+      benefits: [],
+      procedureTime: '',
+      imageUrls: [],
+      instagramLinks: []
+    });
+    setIsLoading(false);
+  };
+
+  // Renderizar etapa atual
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <Step1ServiceName
+            serviceName={serviceData.name}
+            onServiceCreate={(id: string, name: string) => {
+              updateServiceData({ id, name });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 2:
+        return (
+          <Step2ValidateDescription
+            serviceId={serviceData.id}
+            serviceName={serviceData.name}
+            description={serviceData.description}
+            onDescriptionConfirmed={(description: string) => {
+              updateServiceData({ description });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 3:
+        return (
+          <Step3ValidateBenefits
+            serviceId={serviceData.id}
+            serviceName={serviceData.name}
+            benefits={serviceData.benefits}
+            onBenefitsConfirmed={(benefits: string[]) => {
+              updateServiceData({ benefits });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 4:
+        return (
+          <Step4ProcedureTime
+            serviceId={serviceData.id}
+            procedureTime={serviceData.procedureTime}
+            onProcedureTimeConfirmed={(procedureTime: string) => {
+              updateServiceData({ procedureTime });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 5:
+        return (
+          <Step5UploadImages
+            serviceId={serviceData.id}
+            serviceName={serviceData.name}
+            imageUrls={serviceData.imageUrls}
+            onImagesConfirmed={(imageUrls: string[]) => {
+              updateServiceData({ imageUrls });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 6:
+        return (
+          <Step6InstagramLinks
+            serviceId={serviceData.id}
+            serviceName={serviceData.name}
+            instagramLinks={serviceData.instagramLinks}
+            onLinksConfirmed={(instagramLinks: string[]) => {
+              updateServiceData({ instagramLinks });
+              nextStep();
+            }}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      case 7:
+        return (
+          <Step7Finalize
+            serviceData={serviceData}
+            onFinalize={resetForm}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+
+      default:
+        return <div>Etapa não encontrada</div>;
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="max-w-4xl mx-auto p-4 bg-gray-50 min-h-screen">
+      {/* Header com progresso */}
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+          Cadastrar Novo Serviço
+        </h1>
+        
+        {/* Indicador de progresso */}
+        <div className="flex justify-center items-center space-x-2 mb-6">
+          {[1, 2, 3, 4, 5, 6, 7].map((step) => (
+            <div
+              key={step}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                step === currentStep
+                  ? 'bg-pink-500 text-white'
+                  : step < currentStep
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-500'
+              }`}
+            >
+              {step}
+            </div>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Título da etapa atual */}
+        <p className="text-gray-600">
+          {currentStep === 1 && 'Etapa 1: Nome do Serviço'}
+          {currentStep === 2 && 'Etapa 2: Validar Descrição'}
+          {currentStep === 3 && 'Etapa 3: Validar Benefícios'}
+          {currentStep === 4 && 'Etapa 4: Tempo de Procedimento'}
+          {currentStep === 5 && 'Etapa 5: Upload de Imagens'}
+          {currentStep === 6 && 'Etapa 6: Links do Instagram'}
+          {currentStep === 7 && 'Etapa 7: Finalizar'}
+        </p>
+      </div>
+
+      {/* Renderizar etapa atual */}
+      <div className="mb-8">
+        {renderCurrentStep()}
+      </div>
+
+      {/* Debug info (remover em produção) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg text-xs max-w-xs">
+          <strong>Debug:</strong><br />
+          Etapa: {currentStep}<br />
+          ID: {serviceData.id}<br />
+          Nome: {serviceData.name}
+        </div>
+      )}
     </div>
   );
 }
